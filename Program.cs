@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Configuration;
 
 namespace Scheduler
 {
@@ -42,13 +41,21 @@ namespace Scheduler
             {
                 using (InspectionContext db = new InspectionContext())
                 {
-                    var inspectionsDB = db.Inspections.ToList();
+                    var inspectionsDB = db.Inspections.Where(inspection => idCollection.Contains(inspection.InspectionId)).ToList();
                     var inspectorsDB = db.Inspectors.ToList();
                     foreach (var inspection in inspectionsDB)
-                        if (id == inspection.InspectionId)
-                            inspection.ActingInspector = inspectorsDB[i].Name;
+                        inspection.ActingInspector = inspectorsDB[i].Name;
                     db.SaveChanges();
                 }
+            }
+        }
+
+        public static int GetNumberOfInspectors()
+        {
+            using (InspectionContext db = new InspectionContext())
+            {
+                var inspectorDB = db.Inspectors.Where(inspector => inspector.Status.ToLower() == "готов").ToList();
+                return inspectorDB.Count();
             }
         }
 
@@ -58,7 +65,7 @@ namespace Scheduler
             var idCollection = new List<int>();
 
             DateTime startDate = new DateTime(2019, 10, 01);
-            DateTime endDate = new DateTime(2019, 10, 07);
+            DateTime endDate = new DateTime(2019, 10, 31);
             TimeSpan diff = endDate.Subtract(startDate);
             int totalDays = Int32.Parse(diff.ToString().Remove(diff.ToString().IndexOf(".")));
 
@@ -69,7 +76,7 @@ namespace Scheduler
                 Console.WriteLine("Date: " + startDate.AddDays(day));
                 foreach (var inspection in inspectionCollection)
                     inspection.ImportanceValue = GetImportanceValue(inspection.Date, startDate.AddDays(day));
-                for (int i = 0; i < 4; i++)
+                for (int i = 0; i < GetNumberOfInspectors(); i++)
                 {
                     if (idCollection.Count != 0)
                         ExcludeDublicateId(idCollection, inspectionCollection);
