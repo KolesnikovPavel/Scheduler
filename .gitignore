@@ -2,3 +2,5 @@
 /bin/
 /.vs/
 *.sln
+/Inspection.db-shm
+/Inspection.db-wal
