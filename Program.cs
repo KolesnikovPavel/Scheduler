@@ -37,16 +37,13 @@ namespace Scheduler
 
         public static void AssignInspector(List<int> idCollection, int i)
         {
-            foreach (var id in idCollection)
+            using (InspectionContext db = new InspectionContext())
             {
-                using (InspectionContext db = new InspectionContext())
-                {
-                    var inspectionsDB = db.Inspections.Where(inspection => idCollection.Contains(inspection.InspectionId)).ToList();
-                    var inspectorsDB = db.Inspectors.ToList();
-                    foreach (var inspection in inspectionsDB)
-                        inspection.ActingInspector = inspectorsDB[i].Name;
-                    db.SaveChanges();
-                }
+                var inspectionsDB = db.Inspections.Where(inspection => idCollection.Contains(inspection.InspectionId)).ToList();
+                var inspectorsDB = db.Inspectors.ToList();
+                foreach (var inspection in inspectionsDB)
+                    inspection.ActingInspector = inspectorsDB[i].Name;
+                db.SaveChanges();
             }
         }
 
